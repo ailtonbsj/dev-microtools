@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>constructor → inject()</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #14151a;
+    --panel: #1b1d24;
+    --panel-2: #21232c;
+    --line: #2c2f3a;
+    --text: #e7e8ec;
+    --text-dim: #8b8d98;
+    --accent: #ff5470;
+    --accent-dim: #7a2a38;
+    --ok: #4ade80;
+    --focus: #ff5470;
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      --bg: #f3f2f0;
+      --panel: #ffffff;
+      --panel-2: #f7f6f4;
+      --line: #ddd9d3;
+      --text: #1c1c1e;
+      --text-dim: #6b6b70;
+      --accent: #d92d4c;
+      --accent-dim: #f6d3da;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14151a;
+    --panel: #1b1d24;
+    --panel-2: #21232c;
+    --line: #2c2f3a;
+    --text: #e7e8ec;
+    --text-dim: #8b8d98;
+    --accent: #ff5470;
+    --accent-dim: #7a2a38;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 48px 20px 80px;
+  }
+
+  .wrap { width: 100%; max-width: 920px; }
+
+  header { margin-bottom: 36px; }
+
+  .kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    letter-spacing: 0.02em;
+  }
+
+  h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 6px 0 8px;
+    letter-spacing: -0.01em;
+  }
+
+  h1 .arrow-icon { color: var(--accent); }
+
+  p.sub {
+    color: var(--text-dim);
+    font-size: 15px;
+    max-width: 60ch;
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 28px 0 18px;
+  }
+
+  button {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 8px;
+    padding: 11px 18px;
+    border: 1px solid var(--line);
+    background: var(--panel-2);
+    color: var(--text);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: border-color 0.15s ease, transform 0.1s ease, background 0.15s ease;
+  }
+
+  button:hover { border-color: var(--text-dim); }
+  button:active { transform: scale(0.98); }
+  button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+  button.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #17181d;
+  }
+  button.primary:hover { background: #ff6e85; border-color: #ff6e85; }
+
+  button.turbo {
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+  }
+  button.turbo:hover { background: var(--accent-dim); }
+
+  button svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+  .panes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 720px) {
+    .panes { grid-template-columns: 1fr; }
+  }
+
+  .pane {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .pane-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--line);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+
+  .pane-head .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--text-dim);
+    display: inline-block;
+    margin-right: 8px;
+  }
+  .pane-head.out .dot { background: var(--ok); }
+
+  textarea {
+    flex: 1;
+    min-height: 280px;
+    resize: vertical;
+    background: transparent;
+    border: none;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13.5px;
+    line-height: 1.7;
+    padding: 16px;
+    outline: none;
+  }
+  textarea::placeholder { color: var(--text-dim); }
+  textarea[readonly] { color: var(--text); }
+
+  .toast {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%) translateY(12px);
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    color: var(--text);
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: 'JetBrains Mono', monospace;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  .toast.err { border-color: var(--accent); color: var(--accent); }
+
+  footer {
+    margin-top: 22px;
+    color: var(--text-dim);
+    font-size: 12.5px;
+    line-height: 1.6;
+  }
+  footer code {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--panel-2);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="kicker">angular · di refactor</div>
+    <h1>constructor <span class="arrow-icon">→</span> inject()</h1>
+    <p class="sub">Cole a lista de parâmetros injetados no construtor e converta para a sintaxe da função <code style="font-family:'JetBrains Mono',monospace">inject()</code>.</p>
+  </header>
+
+  <div class="toolbar">
+    <button id="btnPaste" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg>
+      Colar da área de transferência
+    </button>
+    <button id="btnConvert" class="primary" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      Converter
+    </button>
+    <button id="btnCopy" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      Copiar resultado
+    </button>
+    <button id="btnTurbo" class="turbo" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg>
+      Turbo (colar + converter + copiar)
+    </button>
+  </div>
+
+  <div class="panes">
+    <div class="pane">
+      <div class="pane-head"><span><span class="dot"></span>entrada</span><span>constructor(...)</span></div>
+      <textarea id="input" placeholder="private formBuilder: FormBuilder,&#10;private oiService: OiService,&#10;private cdr: ChangeDetectorRef"></textarea>
+    </div>
+    <div class="pane">
+      <div class="pane-head out"><span><span class="dot"></span>saída</span><span>inject()</span></div>
+      <textarea id="output" placeholder="private formBuilder = inject(FormBuilder);&#10;private oiService = inject(OiService);&#10;private cdr = inject(ChangeDetectorRef);" readonly></textarea>
+    </div>
+  </div>
+
+  <footer>
+    Suporta modificadores <code>private / public / protected</code> e <code>readonly</code>, com ou sem vírgula final. Decoradores como <code>@Inject(TOKEN)</code> são reconhecidos e usam o token como argumento de <code>inject()</code>.
+  </footer>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+  const inputEl = document.getElementById('input');
+  const outputEl = document.getElementById('output');
+  const toastEl = document.getElementById('toast');
+
+  function showToast(msg, isErr) {
+    toastEl.textContent = msg;
+    toastEl.classList.toggle('err', !!isErr);
+    toastEl.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => toastEl.classList.remove('show'), 2200);
+  }
+
+  function splitParams(text) {
+    const params = [];
+    let depth = 0;
+    let current = '';
+    for (const ch of text) {
+      if (ch === '<' || ch === '(' || ch === '[') depth++;
+      if (ch === '>' || ch === ')' || ch === ']') depth = Math.max(0, depth - 1);
+      if ((ch === ',' || ch === '\n') && depth === 0) {
+        params.push(current);
+        current = '';
+      } else {
+        current += ch;
+      }
+    }
+    if (current.trim()) params.push(current);
+    return params.map(p => p.trim()).filter(Boolean);
+  }
+
+  function parseParam(raw) {
+    let s = raw.trim();
+
+    // strip trailing comma/semicolon
+    s = s.replace(/[,;]\s*$/, '');
+
+    // extract leading decorators, e.g. @Inject(TOKEN) @Optional()
+    let injectOverride = null;
+    const decoratorRe = /^@(\w+)\(([^)]*)\)\s*/;
+    let m;
+    while ((m = decoratorRe.exec(s))) {
+      if (m[1] === 'Inject' && m[2].trim()) {
+        injectOverride = m[2].trim();
+      }
+      s = s.slice(m[0].length).trim();
+    }
+
+    // modifiers: access modifier + optional readonly, in either order
+    let mod = null;
+    let readonly = false;
+    let guard = 0;
+    while (guard++ < 4) {
+      const accessMatch = s.match(/^(public|private|protected)\s+/);
+      const readonlyMatch = s.match(/^(readonly)\s+/);
+      if (accessMatch) {
+        mod = accessMatch[1];
+        s = s.slice(accessMatch[0].length);
+      } else if (readonlyMatch) {
+        readonly = true;
+        s = s.slice(readonlyMatch[0].length);
+      } else {
+        break;
+      }
+    }
+
+    const nameTypeMatch = s.match(/^(\w+)\s*(\?)?\s*:\s*(.+)$/s);
+    if (!nameTypeMatch) return null;
+
+    const name = nameTypeMatch[1];
+    const type = nameTypeMatch[3].trim().replace(/[,;]\s*$/, '');
+    const injectArg = injectOverride || type;
+    const accessOut = mod || 'private';
+
+    return `  ${accessOut} ${readonly ? 'readonly ' : ''}${name} = inject(${injectArg});`;
+  }
+
+  function convert(text) {
+    const params = splitParams(text);
+    if (!params.length) return '';
+    const lines = params.map(parseParam).filter(Boolean).map(l => l.trim());
+    return lines.join('\n');
+  }
+
+  function runConvert() {
+    const text = inputEl.value;
+    if (!text.trim()) {
+      showToast('Cole algo na entrada primeiro', true);
+      return false;
+    }
+    const result = convert(text);
+    if (!result) {
+      showToast('Não consegui reconhecer os parâmetros', true);
+      return false;
+    }
+    outputEl.value = result;
+    showToast('Convertido');
+    return true;
+  }
+
+  async function pasteFromClipboard() {
+    try {
+      const text = await navigator.clipboard.readText();
+      inputEl.value = text;
+      showToast('Colado da área de transferência');
+      return true;
+    } catch (err) {
+      showToast('Sem permissão para ler a área de transferência', true);
+      return false;
+    }
+  }
+
+  async function copyToClipboard() {
+    if (!outputEl.value.trim()) {
+      showToast('Nada para copiar ainda', true);
+      return false;
+    }
+    try {
+      await navigator.clipboard.writeText(outputEl.value);
+      showToast('Copiado para a área de transferência');
+      return true;
+    } catch (err) {
+      outputEl.removeAttribute('readonly');
+      outputEl.select();
+      showToast('Copie manualmente (Ctrl/Cmd+C)', true);
+      return false;
+    }
+  }
+
+  document.getElementById('btnPaste').addEventListener('click', pasteFromClipboard);
+  document.getElementById('btnConvert').addEventListener('click', runConvert);
+  document.getElementById('btnCopy').addEventListener('click', copyToClipboard);
+  document.getElementById('btnTurbo').addEventListener('click', async () => {
+    const pasted = await pasteFromClipboard();
+    if (!pasted) return;
+    const converted = runConvert();
+    if (!converted) return;
+    await copyToClipboard();
+    showToast('Turbo: colado, convertido e copiado ✓');
+  });
+</script>
+</body>
+</html>
