@@ -502,6 +502,10 @@
     background: #fff;
   }
 
+  .btn-hidden {
+    display: none;
+  }
+
   @media (max-width: 640px){
     .topbar{ flex-direction: column; }
     .controls{ width: 100%; }
@@ -589,27 +593,49 @@
 <script>
 (function(){
   const tools = [
+
     {
-      name: 'Constructor to Inject',
+      name: 'Constructor to Inject Angular',
       description: 'Converte objetos injetados em declaração com inject no Angular',
       url: 'https://ailtonbsj.github.io/dev-microtools/angular-constructor-to-inject.html',
       tags: ['frontend', 'angular'],
-      authors: ['ailtonbsj']
+      authors: ['ailtonbsj'],
+      preview: true
     },
     {
-      name: 'JSON to SQL INSERT for Oracle',
+      name: 'SQL CREATE para Boilerplate Spring/Angular',
+      description: 'Gere boilerplates para Spring boot e Angular a partir de SQL CREATE TABLE',
+      url: 'https://dev-tools-converters.vercel.app/ddl-to-module/',
+      tags: ['frontend', 'backend', 'sql', 'spring', 'angular'],
+      authors: ['ailtonbsj'],
+      preview: false
+    },
+
+    {
+      name: 'JSON to SQL INSERT for Oracle DB',
       description: 'Converte DBeaver JSON em INSERT para Oracle DB',
       url: 'https://ailtonbsj.github.io/json-to-sql/',
       tags: ['backend', 'sql', 'dbeaver'],
-      authors: ['ailtonbsj']
+      authors: ['ailtonbsj'],
+      preview: true
     },
     {
-      name: 'Gerador de Região para PDF',
+      name: 'Gerador de Região para PDFBox Java',
       description: 'Gera snippet em Java de regiões de PDF',
       url: 'https://ailtonbsj.github.io/pdf-region-generator/',
       tags: ['backend', 'java', 'pdfbox'],
-      authors: ['ailtonbsj']
+      authors: ['ailtonbsj'],
+      preview: true
+    },
+    {
+      name: 'ENV to JSON Converter',
+      description: 'Converta entre .env e JSON',
+      url: 'https://ailtonbsj.github.io/env-to-json/',
+      tags: ['backend', 'spring', 'java'],
+      authors: ['ailtonbsj'],
+      preview: true
     }
+
   ];
 
   const state = {
@@ -707,7 +733,7 @@
         <span class="who">${tool.authors.map(escapeHtml).join(', ')}</span>
       </div>
       <div class="card-actions">
-        <button class="btn btn-primary" data-action="preview">
+        <button class="btn btn-primary${tool.preview ? '' : ' btn-hidden'}" data-action="preview">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
           Visualizar
         </button>
