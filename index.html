@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Micro tools para devs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #EFF3F7;
+    --bg-line: #DCE5EC;
+    --panel: #FFFFFF;
+    --ink: #1B2733;
+    --muted: #5C6B7A;
+    --line: #C9D5DF;
+    --line-soft: #DCE4EA;
+    --accent: #D97F1F;
+    --accent-ink: #5A3A0F;
+    --accent-2: #2F6FED;
+    --accent-2-soft: #E7EFFE;
+    --shadow: 0 1px 0 rgba(27,39,51,0.04);
+    --radius: 4px;
+    --focus: #2F6FED;
+  }
+
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg: #10161D;
+      --bg-line: #182029;
+      --panel: #171F28;
+      --ink: #E8EDF2;
+      --muted: #8CA0B3;
+      --line: #2A3540;
+      --line-soft: #212B34;
+      --accent: #EFA33D;
+      --accent-ink: #241705;
+      --accent-2: #6FA1FF;
+      --accent-2-soft: #1C2735;
+      --shadow: 0 1px 0 rgba(0,0,0,0.2);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg: #10161D;
+    --bg-line: #182029;
+    --panel: #171F28;
+    --ink: #E8EDF2;
+    --muted: #8CA0B3;
+    --line: #2A3540;
+    --line-soft: #212B34;
+    --accent: #EFA33D;
+    --accent-ink: #241705;
+    --accent-2: #6FA1FF;
+    --accent-2-soft: #1C2735;
+    --shadow: 0 1px 0 rgba(0,0,0,0.2);
+  }
+
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background: var(--bg);
+    background-image:
+      linear-gradient(var(--bg-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--bg-line) 1px, transparent 1px);
+    background-size: 28px 28px;
+    color: var(--ink);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: inherit; }
+  button { font-family: inherit; }
+
+  :focus-visible{
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  .wrap{
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 32px 24px 80px;
+  }
+
+  /* ---------- Header ---------- */
+  .topbar{
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 24px;
+  }
+
+  .brand{
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .brand-mark{
+    width: 44px;
+    height: 44px;
+    flex: none;
+    border-radius: 10px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    box-shadow: var(--shadow);
+  }
+
+  .brand h1{
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    margin: 0 0 4px;
+    letter-spacing: -0.01em;
+  }
+
+  .brand p{
+    margin: 0;
+    color: var(--muted);
+    font-size: 14px;
+    max-width: 46ch;
+  }
+
+  .controls{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .search-wrap{
+    position: relative;
+  }
+
+  .search-wrap svg{
+    position: absolute;
+    left: 11px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    pointer-events: none;
+  }
+
+  #searchInput{
+    width: 240px;
+    padding: 9px 12px 9px 34px;
+    border-radius: var(--radius);
+    border: 1px solid var(--line);
+    background: var(--panel);
+    color: var(--ink);
+    font-size: 14px;
+  }
+
+  #searchInput::placeholder{ color: var(--muted); }
+
+  .view-toggle{
+    display: inline-flex;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--panel);
+  }
+
+  .view-toggle button{
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    width: 38px;
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-left: 1px solid var(--line);
+  }
+
+  .view-toggle button:first-child{ border-left: none; }
+
+  .view-toggle button.active{
+    background: var(--accent-2-soft);
+    color: var(--accent-2);
+  }
+
+  /* ---------- Tag filter ---------- */
+  .tag-filter{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 28px;
+  }
+
+  .tag-filter .label{
+    font-size: 13px;
+    color: var(--muted);
+    margin-right: 4px;
+  }
+
+  .tag-chip{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    padding: 5px 11px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    color: var(--muted);
+    cursor: pointer;
+    line-height: 1.4;
+  }
+
+  .tag-chip:hover{ border-color: var(--accent-2); color: var(--ink); }
+
+  .tag-chip.active{
+    background: var(--accent-2);
+    border-color: var(--accent-2);
+    color: #fff;
+  }
+
+  .tag-chip .count{
+    opacity: .65;
+    margin-left: 2px;
+  }
+
+  .clear-filters{
+    font-size: 12.5px;
+    color: var(--accent-2);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px 4px;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  /* ---------- Cards ---------- */
+  .cards-grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+  }
+
+  .cards-grid[hidden], .table-wrap[hidden]{
+    display: none;
+  }
+
+  .card{
+    position: relative;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 20px 18px 16px;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .card::before, .card::after{
+    content: "";
+    position: absolute;
+    top: 12px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 1px solid var(--line);
+  }
+  .card::before{ left: 12px; }
+  .card::after{ right: 12px; }
+
+  .card-name{
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 17px;
+    font-weight: 600;
+    margin: 4px 0 0;
+    padding-right: 6px;
+  }
+
+  .card-desc{
+    font-size: 13.5px;
+    color: var(--muted);
+    line-height: 1.5;
+    margin: 0;
+    flex: 1;
+  }
+
+  .badge-row{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .badge{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11.5px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: var(--accent-2-soft);
+    color: var(--accent-2);
+    border: 1px solid transparent;
+  }
+
+  .authors-row{
+    font-size: 12.5px;
+    color: var(--muted);
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+    flex-wrap: wrap;
+    border-top: 1px dashed var(--line-soft);
+    padding-top: 10px;
+  }
+
+  .authors-row .by{ color: var(--muted); }
+
+  .authors-row .who{
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--ink);
+  }
+
+  .card-actions{
+    display: flex;
+    gap: 8px;
+    margin-top: 2px;
+  }
+
+  .btn{
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 8px 10px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    border: 1px solid transparent;
+    text-decoration: none;
+  }
+
+  .btn-primary{
+    background: var(--accent);
+    color: var(--accent-ink);
+    border-color: var(--accent);
+  }
+  .btn-primary:hover{ filter: brightness(1.05); }
+
+  .btn-outline{
+    background: transparent;
+    border-color: var(--line);
+    color: var(--ink);
+  }
+  .btn-outline:hover{ border-color: var(--accent-2); color: var(--accent-2); }
+
+  /* ---------- Table ---------- */
+  .table-wrap{
+    overflow-x: auto;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+  }
+
+  table{
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+  }
+
+  thead th{
+    text-align: left;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--muted);
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+  }
+
+  tbody td{
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--line-soft);
+    vertical-align: top;
+  }
+
+  tbody tr:last-child td{ border-bottom: none; }
+
+  td.name-cell{
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  td.desc-cell{ color: var(--muted); max-width: 320px; }
+
+  td.tags-cell, td.authors-cell{ min-width: 160px; }
+
+  td.actions-cell{
+    white-space: nowrap;
+    text-align: right;
+  }
+
+  td.actions-cell .btn{
+    flex: none;
+    padding: 6px 10px;
+    font-size: 12.5px;
+  }
+
+  td.actions-cell .btn + .btn{ margin-left: 6px; }
+
+  /* ---------- Empty state ---------- */
+  .empty{
+    text-align: center;
+    color: var(--muted);
+    padding: 60px 20px;
+    font-size: 14px;
+    border: 1px dashed var(--line);
+    border-radius: 10px;
+    background: var(--panel);
+  }
+
+  /* ---------- Modal / embed viewer ---------- */
+  .modal{
+    position: fixed;
+    inset: 0;
+    background: rgba(16,22,29,0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 28px;
+    z-index: 50;
+  }
+
+  .modal[hidden]{
+    display: none;
+  }
+
+  .modal-panel{
+    width: 100%;
+    height: 100%;
+    max-width: 1200px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .modal-bar{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--line);
+    gap: 12px;
+  }
+
+  .modal-bar .modal-title{
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 14.5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .modal-bar .modal-url{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11.5px;
+    color: var(--muted);
+    display: block;
+    margin-top: 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .modal-actions{
+    display: flex;
+    gap: 8px;
+    flex: none;
+  }
+
+  .modal-actions .btn{ flex: none; padding: 7px 12px; }
+
+  #modalIframe{
+    flex: 1;
+    border: none;
+    width: 100%;
+    background: #fff;
+  }
+
+  @media (max-width: 640px){
+    .topbar{ flex-direction: column; }
+    .controls{ width: 100%; }
+    #searchInput{ width: 100%; }
+    .view-toggle{ flex: none; }
+    .modal{ padding: 0; }
+    .modal-panel{ border-radius: 0; }
+    td.desc-cell{ max-width: 200px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">🧰</div>
+      <div>
+        <h1>Micro tools para devs</h1>
+        <p>Microferramentas feitas por desenvolvedores para o dia a dia de desenvolvimento.</p>
+      </div>
+    </div>
+    <div class="controls">
+      <div class="search-wrap">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input id="searchInput" type="search" placeholder="Buscar por nome..." autocomplete="off">
+      </div>
+      <div class="view-toggle" role="tablist" aria-label="Modo de visualização">
+        <button data-view="cards" class="active" role="tab" aria-selected="true" aria-label="Ver como cards" title="Ver como cards">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect></svg>
+        </button>
+        <button data-view="table" role="tab" aria-selected="false" aria-label="Ver como tabela" title="Ver como tabela">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"></rect><line x1="3" y1="10" x2="21" y2="10"></line><line x1="9" y1="4" x2="9" y2="20"></line></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="tag-filter" id="tagFilter" aria-label="Filtrar por tags"></section>
+
+  <main>
+    <div id="cardsView" class="cards-grid"></div>
+
+    <div id="tableView" class="table-wrap" hidden>
+      <table>
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Descrição</th>
+            <th>Tags</th>
+            <th>Autores</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+
+    <p id="emptyState" class="empty" hidden>Nenhuma ferramenta encontrada para esse filtro.</p>
+  </main>
+</div>
+
+<div id="modal" class="modal" hidden>
+  <div class="modal-panel">
+    <div class="modal-bar">
+      <div>
+        <div class="modal-title" id="modalTitle">—</div>
+        <span class="modal-url" id="modalUrl">—</span>
+      </div>
+      <div class="modal-actions">
+        <a id="modalOpenTab" class="btn btn-outline" target="_blank" rel="noopener noreferrer">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+          Nova aba
+        </a>
+        <button id="modalClose" class="btn btn-outline">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          Fechar
+        </button>
+      </div>
+    </div>
+    <iframe id="modalIframe" src="about:blank" title="Visualização embarcada da ferramenta"></iframe>
+  </div>
+</div>
+
+<script>
+(function(){
+  const tools = [
+    {
+      name: 'Constructor to Inject',
+      description: 'Converte objetos injetados em declaração com inject no Angular',
+      url: 'https://ailtonbsj.github.io/dev-microtools/angular-constructor-to-inject.html',
+      tags: ['frontend', 'angular'],
+      authors: ['ailtonbsj']
+    },
+    {
+      name: 'JSON to SQL INSERT for Oracle',
+      description: 'Converte DBeaver JSON em INSERT para Oracle DB',
+      url: 'https://ailtonbsj.github.io/json-to-sql/',
+      tags: ['backend', 'sql', 'dbeaver'],
+      authors: ['ailtonbsj']
+    },
+    {
+      name: 'Gerador de Região para PDF',
+      description: 'Gera snippet em Java de regiões de PDF',
+      url: 'https://ailtonbsj.github.io/pdf-region-generator/',
+      tags: ['backend', 'java', 'pdfbox'],
+      authors: ['ailtonbsj']
+    }
+  ];
+
+  const state = {
+    query: '',
+    activeTags: new Set(),
+    view: 'cards'
+  };
+
+  const cardsView = document.getElementById('cardsView');
+  const tableBody = document.getElementById('tableBody');
+  const tableView = document.getElementById('tableView');
+  const emptyState = document.getElementById('emptyState');
+  const tagFilterEl = document.getElementById('tagFilter');
+  const searchInput = document.getElementById('searchInput');
+
+  const modal = document.getElementById('modal');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalUrl = document.getElementById('modalUrl');
+  const modalIframe = document.getElementById('modalIframe');
+  const modalOpenTab = document.getElementById('modalOpenTab');
+  const modalClose = document.getElementById('modalClose');
+
+  function allTags(){
+    const counts = new Map();
+    tools.forEach(t => t.tags.forEach(tag => counts.set(tag, (counts.get(tag) || 0) + 1)));
+    return counts;
+  }
+
+  function renderTagFilter(){
+    const counts = allTags();
+    const tags = [...counts.keys()].sort();
+    tagFilterEl.innerHTML = '';
+
+    const label = document.createElement('span');
+    label.className = 'label';
+    label.textContent = 'Filtrar por tag:';
+    tagFilterEl.appendChild(label);
+
+    tags.forEach(tag => {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'tag-chip' + (state.activeTags.has(tag) ? ' active' : '');
+      chip.innerHTML = tag + ' <span class="count">' + counts.get(tag) + '</span>';
+      chip.addEventListener('click', () => {
+        if (state.activeTags.has(tag)) state.activeTags.delete(tag);
+        else state.activeTags.add(tag);
+        renderTagFilter();
+        renderList();
+      });
+      tagFilterEl.appendChild(chip);
+    });
+
+    if (state.activeTags.size > 0){
+      const clear = document.createElement('button');
+      clear.type = 'button';
+      clear.className = 'clear-filters';
+      clear.textContent = 'limpar filtros';
+      clear.addEventListener('click', () => {
+        state.activeTags.clear();
+        renderTagFilter();
+        renderList();
+      });
+      tagFilterEl.appendChild(clear);
+    }
+  }
+
+  function getFiltered(){
+    const q = state.query.trim().toLowerCase();
+    return tools.filter(t => {
+      const matchesQuery = !q || t.name.toLowerCase().includes(q);
+      const matchesTags = state.activeTags.size === 0 || t.tags.some(tag => state.activeTags.has(tag));
+      return matchesQuery && matchesTags;
+    });
+  }
+
+  function tagBadges(tags){
+    return tags.map(t => '<span class="badge">' + escapeHtml(t) + '</span>').join('');
+  }
+
+  function escapeHtml(str){
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function buildCard(tool){
+    const card = document.createElement('article');
+    card.className = 'card';
+    card.innerHTML = `
+      <h3 class="card-name">${escapeHtml(tool.name)}</h3>
+      <p class="card-desc">${escapeHtml(tool.description)}</p>
+      <div class="badge-row">${tagBadges(tool.tags)}</div>
+      <div class="authors-row">
+        <span class="by">por</span>
+        <span class="who">${tool.authors.map(escapeHtml).join(', ')}</span>
+      </div>
+      <div class="card-actions">
+        <button class="btn btn-primary" data-action="preview">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          Visualizar
+        </button>
+        <a class="btn btn-outline" data-action="open" href="${escapeHtml(tool.url)}" target="_blank" rel="noopener noreferrer">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+          Nova aba
+        </a>
+      </div>
+    `;
+    card.querySelector('[data-action="preview"]').addEventListener('click', () => openModal(tool));
+    return card;
+  }
+
+  function buildRow(tool){
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="name-cell">${escapeHtml(tool.name)}</td>
+      <td class="desc-cell">${escapeHtml(tool.description)}</td>
+      <td class="tags-cell"><div class="badge-row">${tagBadges(tool.tags)}</div></td>
+      <td class="authors-cell"><span class="who">${tool.authors.map(escapeHtml).join(', ')}</span></td>
+      <td class="actions-cell">
+        <button class="btn btn-primary" data-action="preview">Visualizar</button>
+        <a class="btn btn-outline" data-action="open" href="${escapeHtml(tool.url)}" target="_blank" rel="noopener noreferrer">Nova aba</a>
+      </td>
+    `;
+    tr.querySelector('[data-action="preview"]').addEventListener('click', () => openModal(tool));
+    return tr;
+  }
+
+  function renderList(){
+    const filtered = getFiltered();
+
+    cardsView.innerHTML = '';
+    tableBody.innerHTML = '';
+    filtered.forEach(tool => {
+      cardsView.appendChild(buildCard(tool));
+      tableBody.appendChild(buildRow(tool));
+    });
+
+    const isEmpty = filtered.length === 0;
+    emptyState.hidden = !isEmpty;
+    cardsView.hidden = isEmpty || state.view !== 'cards';
+    tableView.hidden = isEmpty || state.view !== 'table';
+  }
+
+  function setView(view){
+    state.view = view;
+    document.querySelectorAll('.view-toggle button').forEach(btn => {
+      const active = btn.dataset.view === view;
+      btn.classList.toggle('active', active);
+      btn.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+    renderList();
+  }
+
+  function openModal(tool){
+    modalTitle.textContent = tool.name;
+    modalUrl.textContent = tool.url;
+    modalOpenTab.href = tool.url;
+    modalIframe.src = tool.url;
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal(){
+    modal.hidden = true;
+    modalIframe.src = 'about:blank';
+    document.body.style.overflow = '';
+  }
+
+  searchInput.addEventListener('input', e => {
+    state.query = e.target.value;
+    renderList();
+  });
+
+  document.querySelectorAll('.view-toggle button').forEach(btn => {
+    btn.addEventListener('click', () => setView(btn.dataset.view));
+  });
+
+  modalClose.addEventListener('click', closeModal);
+  modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !modal.hidden) closeModal(); });
+
+  renderTagFilter();
+  renderList();
+})();
+</script>
+</body>
+</html>
