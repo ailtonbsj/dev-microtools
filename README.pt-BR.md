@@ -35,12 +35,14 @@ Edite o array `tools` em `index.html` e inclua um novo objeto com os campos:
 
 ```js
 {
-  name: 'Nome da ferramenta',
-  description: 'Descrição curta',
-  url: 'https://exemplo.com/ferramenta',
+  namePtBr: 'Nome da ferramenta',
+  nameEn: 'Tool name',
+  descriptionPtBr: 'Descrição curta',
+  descriptionEn: 'Short description',
+  url: 'https://example.com/tool',
   tags: ['tag1', 'tag2'],
-  authors: ['autor'],
-  preview: true // ou false
+  authors: ['author'],
+  preview: true // or false
 }
 ```
 
