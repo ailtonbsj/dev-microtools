@@ -35,8 +35,10 @@ Edit the `tools` array in `index.html` and add a new object with the following f
 
 ```js
 {
-  name: 'Tool name',
-  description: 'Short description',
+  namePtBr: 'Nome da ferramenta',
+  nameEn: 'Tool name',
+  descriptionPtBr: 'Descrição curta',
+  descriptionEn: 'Short description',
   url: 'https://example.com/tool',
   tags: ['tag1', 'tag2'],
   authors: ['author'],
