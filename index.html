@@ -191,6 +191,36 @@
     color: var(--accent-2);
   }
 
+  .lang-toggle{
+    display: inline-flex;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--panel);
+  }
+
+  .lang-toggle button{
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    padding: 0 12px;
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    border-left: 1px solid var(--line);
+  }
+
+  .lang-toggle button:first-child{ border-left: none; }
+
+  .lang-toggle button.active{
+    background: var(--accent-2-soft);
+    color: var(--accent-2);
+  }
+
   /* ---------- Tag filter ---------- */
   .tag-filter{
     display: flex;
@@ -524,8 +554,8 @@
     <div class="brand">
       <div class="brand-mark">🧰</div>
       <div>
-        <h1>Micro tools para devs</h1>
-        <p>Microferramentas feitas por desenvolvedores para o dia a dia de desenvolvimento.</p>
+        <h1 id="appTitle">Micro tools para devs</h1>
+        <p id="appSubtitle">Microferramentas feitas por desenvolvedores para o dia a dia de desenvolvimento.</p>
       </div>
     </div>
     <div class="controls">
@@ -541,6 +571,10 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"></rect><line x1="3" y1="10" x2="21" y2="10"></line><line x1="9" y1="4" x2="9" y2="20"></line></svg>
         </button>
       </div>
+      <div class="lang-toggle" role="group" aria-label="Idioma">
+        <button data-lang="pt-BR" class="active">PT-BR</button>
+        <button data-lang="en">EN</button>
+      </div>
     </div>
   </header>
 
@@ -553,10 +587,10 @@
       <table>
         <thead>
           <tr>
-            <th>Nome</th>
-            <th>Descrição</th>
-            <th>Tags</th>
-            <th>Autores</th>
+            <th id="thName">Nome</th>
+            <th id="thDesc">Descrição</th>
+            <th id="thTags">Tags</th>
+            <th id="thAuthors">Autores</th>
             <th></th>
           </tr>
         </thead>
@@ -578,11 +612,11 @@
       <div class="modal-actions">
         <a id="modalOpenTab" class="btn btn-outline" target="_blank" rel="noopener noreferrer">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-          Nova aba
+          <span id="modalOpenTabLabel">Nova aba</span>
         </a>
         <button id="modalClose" class="btn btn-outline">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-          Fechar
+          <span id="modalCloseLabel">Fechar</span>
         </button>
       </div>
     </div>
@@ -592,64 +626,119 @@
 
 <script>
 (function(){
-  const tools = [
+  const i18n = {
+    'pt-BR': {
+      title: 'Micro tools para devs',
+      subtitle: 'Microferramentas feitas por desenvolvedores para o dia a dia de desenvolvimento.',
+      searchPlaceholder: 'Buscar por nome...',
+      filterLabel: 'Filtrar por tag:',
+      clearFilters: 'limpar filtros',
+      viewCardsAria: 'Ver como cards',
+      viewTableAria: 'Ver como tabela',
+      thName: 'Nome',
+      thDesc: 'Descrição',
+      thTags: 'Tags',
+      thAuthors: 'Autores',
+      by: 'por',
+      preview: 'Visualizar',
+      openNewTab: 'Nova aba',
+      empty: 'Nenhuma ferramenta encontrada para esse filtro.',
+      modalOpenNewTab: 'Nova aba',
+      modalClose: 'Fechar',
+      iframeTitle: 'Visualização embarcada da ferramenta',
+      langAria: 'Idioma'
+    },
+    'en': {
+      title: 'Micro tools for developers',
+      subtitle: 'Microtools made by developers for everyday development.',
+      searchPlaceholder: 'Search by name...',
+      filterLabel: 'Filter by tag:',
+      clearFilters: 'clear filters',
+      viewCardsAria: 'View as cards',
+      viewTableAria: 'View as table',
+      thName: 'Name',
+      thDesc: 'Description',
+      thTags: 'Tags',
+      thAuthors: 'Authors',
+      by: 'by',
+      preview: 'Preview',
+      openNewTab: 'Open in new tab',
+      empty: 'No tools found for this filter.',
+      modalOpenNewTab: 'Open in new tab',
+      modalClose: 'Close',
+      iframeTitle: 'Embedded tool preview',
+      langAria: 'Language'
+    }
+  };
 
+  const tools = [
     {
-      name: 'Java DTO to Angular Model',
-      description: 'Converte DTO do java para interfaces typescript',
+      namePtBr: 'Java DTO to Angular Model',
+      nameEn: 'Java DTO to Angular Model',
+      descriptionPtBr: 'Converte DTO do java para interfaces typescript',
+      descriptionEn: 'Converts Java DTO to TypeScript interfaces',
       url: 'https://ailtonbsj.github.io/dev-microtools/java-dto-to-ts.html',
       tags: ['frontend', 'angular', 'backend', 'java'],
       authors: ['ailtonbsj'],
       preview: true
     },
     {
-      name: 'Constructor to Inject Angular',
-      description: 'Converte objetos injetados em declaração com inject no Angular',
+      namePtBr: 'Constructor to Inject Angular',
+      nameEn: 'Constructor to Inject Angular',
+      descriptionPtBr: 'Converte objetos injetados em declaração com inject no Angular',
+      descriptionEn: 'Converts constructor injection to Angular inject() declarations',
       url: 'https://ailtonbsj.github.io/dev-microtools/angular-constructor-to-inject.html',
       tags: ['frontend', 'angular'],
       authors: ['ailtonbsj'],
       preview: true
     },
     {
-      name: 'SQL CREATE para Boilerplate Spring/Angular',
-      description: 'Gere boilerplates para Spring boot e Angular a partir de SQL CREATE TABLE',
+      namePtBr: 'SQL CREATE para Boilerplate Spring/Angular',
+      nameEn: 'SQL CREATE to Spring/Angular Boilerplate',
+      descriptionPtBr: 'Gere boilerplates para Spring boot e Angular a partir de SQL CREATE TABLE',
+      descriptionEn: 'Generate Spring Boot and Angular boilerplates from SQL CREATE TABLE',
       url: 'https://dev-tools-converters.vercel.app/ddl-to-module/',
       tags: ['frontend', 'backend', 'sql', 'spring', 'angular'],
       authors: ['ailtonbsj'],
       preview: false
     },
-
     {
-      name: 'JSON to SQL for Oracle DB',
-      description: 'Converte DBeaver JSON em SQL para Oracle DB',
+      namePtBr: 'JSON to SQL for Oracle DB',
+      nameEn: 'JSON to SQL for Oracle DB',
+      descriptionPtBr: 'Converte DBeaver JSON em SQL para Oracle DB',
+      descriptionEn: 'Converts DBeaver JSON to SQL for Oracle DB',
       url: 'https://ailtonbsj.github.io/json-to-sql/',
       tags: ['backend', 'sql', 'dbeaver'],
       authors: ['ailtonbsj'],
       preview: true
     },
     {
-      name: 'Gerador de Região para PDFBox Java',
-      description: 'Gera snippet em Java de regiões de PDF',
+      namePtBr: 'Gerador de Região para PDFBox Java',
+      nameEn: 'PDF Region Generator for PDFBox Java',
+      descriptionPtBr: 'Gera snippet em Java de regiões de PDF',
+      descriptionEn: 'Generates Java snippets for PDF regions with PDFBox',
       url: 'https://ailtonbsj.github.io/pdf-region-generator/',
       tags: ['backend', 'java', 'pdfbox'],
       authors: ['ailtonbsj'],
       preview: true
     },
     {
-      name: 'ENV to JSON Converter',
-      description: 'Converta entre .env e JSON',
+      namePtBr: 'ENV to JSON Converter',
+      nameEn: 'ENV to JSON Converter',
+      descriptionPtBr: 'Converta entre .env e JSON',
+      descriptionEn: 'Convert between .env and JSON',
       url: 'https://ailtonbsj.github.io/env-to-json/',
       tags: ['backend', 'spring', 'java'],
       authors: ['ailtonbsj'],
       preview: true
     }
-
   ];
 
   const state = {
     query: '',
     activeTags: new Set(),
-    view: 'cards'
+    view: 'cards',
+    lang: localStorage.getItem('dev-microtools-lang') || 'pt-BR'
   };
 
   const cardsView = document.getElementById('cardsView');
@@ -665,6 +754,66 @@
   const modalIframe = document.getElementById('modalIframe');
   const modalOpenTab = document.getElementById('modalOpenTab');
   const modalClose = document.getElementById('modalClose');
+  const modalOpenTabLabel = document.getElementById('modalOpenTabLabel');
+  const modalCloseLabel = document.getElementById('modalCloseLabel');
+
+  const appTitle = document.getElementById('appTitle');
+  const appSubtitle = document.getElementById('appSubtitle');
+  const thName = document.getElementById('thName');
+  const thDesc = document.getElementById('thDesc');
+  const thTags = document.getElementById('thTags');
+  const thAuthors = document.getElementById('thAuthors');
+
+  const langToggleBtns = document.querySelectorAll('.lang-toggle button');
+
+  function getLang(){
+    return state.lang === 'en' ? 'en' : 'pt-BR';
+  }
+
+  function getName(tool){
+    const lang = getLang();
+    return lang === 'en' ? (tool.nameEn || tool.namePtBr || tool.name) : (tool.namePtBr || tool.nameEn || tool.name);
+  }
+
+  function getDesc(tool){
+    const lang = getLang();
+    return lang === 'en' ? (tool.descriptionEn || tool.descriptionPtBr || tool.description) : (tool.descriptionPtBr || tool.descriptionEn || tool.description);
+  }
+
+  function applyI18n(){
+    const t = i18n[getLang()];
+    document.documentElement.lang = getLang();
+    appTitle.textContent = t.title;
+    appSubtitle.textContent = t.subtitle;
+    searchInput.placeholder = t.searchPlaceholder;
+    thName.textContent = t.thName;
+    thDesc.textContent = t.thDesc;
+    thTags.textContent = t.thTags;
+    thAuthors.textContent = t.thAuthors;
+    emptyState.textContent = t.empty;
+    modalOpenTabLabel.textContent = t.modalOpenNewTab;
+    modalCloseLabel.textContent = t.modalClose;
+    modalIframe.title = t.iframeTitle;
+    document.querySelector('.view-toggle').setAttribute('aria-label', getLang() === 'en' ? t.viewCardsAria.replace('cards','cards') : 'Modo de visualização');
+    document.querySelectorAll('.view-toggle button')[0].setAttribute('aria-label', t.viewCardsAria);
+    document.querySelectorAll('.view-toggle button')[0].setAttribute('title', t.viewCardsAria);
+    document.querySelectorAll('.view-toggle button')[1].setAttribute('aria-label', t.viewTableAria);
+    document.querySelectorAll('.view-toggle button')[1].setAttribute('title', t.viewTableAria);
+    document.querySelector('.lang-toggle').setAttribute('aria-label', t.langAria);
+    tagFilterEl.setAttribute('aria-label', t.filterLabel);
+  }
+
+  function setLang(lang){
+    state.lang = lang === 'en' ? 'en' : 'pt-BR';
+    localStorage.setItem('dev-microtools-lang', state.lang);
+    langToggleBtns.forEach(btn => {
+      const active = btn.dataset.lang === state.lang;
+      btn.classList.toggle('active', active);
+    });
+    applyI18n();
+    renderTagFilter();
+    renderList();
+  }
 
   function allTags(){
     const counts = new Map();
@@ -673,13 +822,14 @@
   }
 
   function renderTagFilter(){
+    const t = i18n[getLang()];
     const counts = allTags();
     const tags = [...counts.keys()].sort();
     tagFilterEl.innerHTML = '';
 
     const label = document.createElement('span');
     label.className = 'label';
-    label.textContent = 'Filtrar por tag:';
+    label.textContent = t.filterLabel;
     tagFilterEl.appendChild(label);
 
     tags.forEach(tag => {
@@ -700,7 +850,7 @@
       const clear = document.createElement('button');
       clear.type = 'button';
       clear.className = 'clear-filters';
-      clear.textContent = 'limpar filtros';
+      clear.textContent = t.clearFilters;
       clear.addEventListener('click', () => {
         state.activeTags.clear();
         renderTagFilter();
@@ -712,42 +862,44 @@
 
   function getFiltered(){
     const q = state.query.trim().toLowerCase();
-    return tools.filter(t => {
-      const matchesQuery = !q || t.name.toLowerCase().includes(q);
-      const matchesTags = state.activeTags.size === 0 || t.tags.some(tag => state.activeTags.has(tag));
+    return tools.filter(tool => {
+      const name = getName(tool).toLowerCase();
+      const matchesQuery = !q || name.includes(q);
+      const matchesTags = state.activeTags.size === 0 || tool.tags.some(tag => state.activeTags.has(tag));
       return matchesQuery && matchesTags;
     });
   }
 
   function tagBadges(tags){
-    return tags.map(t => '<span class="badge">' + escapeHtml(t) + '</span>').join('');
+    return tags.map(tag => '<span class="badge">' + escapeHtml(tag) + '</span>').join('');
   }
 
   function escapeHtml(str){
     const div = document.createElement('div');
-    div.textContent = str;
+    div.textContent = str == null ? '' : str;
     return div.innerHTML;
   }
 
   function buildCard(tool){
+    const t = i18n[getLang()];
     const card = document.createElement('article');
     card.className = 'card';
     card.innerHTML = `
-      <h3 class="card-name">${escapeHtml(tool.name)}</h3>
-      <p class="card-desc">${escapeHtml(tool.description)}</p>
+      <h3 class="card-name">${escapeHtml(getName(tool))}</h3>
+      <p class="card-desc">${escapeHtml(getDesc(tool))}</p>
       <div class="badge-row">${tagBadges(tool.tags)}</div>
       <div class="authors-row">
-        <span class="by">por</span>
-        <span class="who">${tool.authors.map(escapeHtml).join(', ')}</span>
+        <span class="by">${escapeHtml(t.by)}</span>
+        <span class="who">${(tool.authors || []).map(escapeHtml).join(', ')}</span>
       </div>
       <div class="card-actions">
         <button class="btn btn-primary${tool.preview ? '' : ' btn-hidden'}" data-action="preview">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-          Visualizar
+          ${escapeHtml(t.preview)}
         </button>
         <a class="btn btn-outline" data-action="open" href="${escapeHtml(tool.url)}" target="_blank" rel="noopener noreferrer">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-          Nova aba
+          ${escapeHtml(t.openNewTab)}
         </a>
       </div>
     `;
@@ -756,15 +908,16 @@
   }
 
   function buildRow(tool){
+    const t = i18n[getLang()];
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td class="name-cell">${escapeHtml(tool.name)}</td>
-      <td class="desc-cell">${escapeHtml(tool.description)}</td>
+      <td class="name-cell">${escapeHtml(getName(tool))}</td>
+      <td class="desc-cell">${escapeHtml(getDesc(tool))}</td>
       <td class="tags-cell"><div class="badge-row">${tagBadges(tool.tags)}</div></td>
-      <td class="authors-cell"><span class="who">${tool.authors.map(escapeHtml).join(', ')}</span></td>
+      <td class="authors-cell"><span class="who">${(tool.authors || []).map(escapeHtml).join(', ')}</span></td>
       <td class="actions-cell">
-        <button class="btn btn-primary" data-action="preview">Visualizar</button>
-        <a class="btn btn-outline" data-action="open" href="${escapeHtml(tool.url)}" target="_blank" rel="noopener noreferrer">Nova aba</a>
+        <button class="btn btn-primary" data-action="preview">${escapeHtml(t.preview)}</button>
+        <a class="btn btn-outline" data-action="open" href="${escapeHtml(tool.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(t.openNewTab)}</a>
       </td>
     `;
     tr.querySelector('[data-action="preview"]').addEventListener('click', () => openModal(tool));
@@ -798,7 +951,7 @@
   }
 
   function openModal(tool){
-    modalTitle.textContent = tool.name;
+    modalTitle.textContent = getName(tool);
     modalUrl.textContent = tool.url;
     modalOpenTab.href = tool.url;
     modalIframe.src = tool.url;
@@ -821,10 +974,18 @@
     btn.addEventListener('click', () => setView(btn.dataset.view));
   });
 
+  langToggleBtns.forEach(btn => {
+    btn.addEventListener('click', () => setLang(btn.dataset.lang));
+  });
+
   modalClose.addEventListener('click', closeModal);
   modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !modal.hidden) closeModal(); });
 
+  langToggleBtns.forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.lang === state.lang);
+  });
+  applyI18n();
   renderTagFilter();
   renderList();
 })();
